@@ -9,10 +9,8 @@ export default function Game() {
   const [currentFlag, setCurrentFlag] = useState({});
 
   const rdmFlag = () => {
-    if (flags.length > 0){
-      const random = Math.floor(Math.random() * flags.length);
-      setCurrentFlag(flags[random]);
-    }
+    const random = Math.floor(Math.random() * flags.length);
+    setCurrentFlag(flags[random]);
   }
 
   useEffect(() => {
@@ -22,8 +20,10 @@ export default function Game() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    console.log(e.target.value);
     if (e.target.value === currentFlag.name){
       rdmFlag();
+      console.log('correcto');
     }
   }
 
