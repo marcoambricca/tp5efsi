@@ -7,32 +7,45 @@ import FlagCard from '../components/flag-card.jsx';
 export default function Game() {
   const [flags, setFlags] = useState([]);
   const [currentFlag, setCurrentFlag] = useState({});
+  const [points, setPoints] = useState(0)
 
   const rdmFlag = () => {
-    const random = Math.floor(Math.random() * flags.length);
-    setCurrentFlag(flags[random]);
+    if (flags.length > 0){
+      const random = Math.floor(Math.random() * flags.length);
+      setCurrentFlag(flags[random]);
+    }
   }
 
   useEffect(() => {
     fetchFlags(setFlags);
-    rdmFlag();
   }, []);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log(e.target.value);
-    if (e.target.value === currentFlag.name){
+  useEffect(() => {
+    if (flags.length > 0){
       rdmFlag();
-      console.log('correcto');
     }
-  }
+  }, [flags]);
+
+  const checkAnswer = (e) => {
+    e.preventDefault();
+    const inputValue = e.target.elements['guess-input'].value;
+    if (inputValue.toLowerCase() === currentFlag.name.toLowerCase()) {
+      setPoints(points + 10);
+    }
+    else if (inputValue != currentFlag.name || inputValue === ''){
+      if (points > 0){
+        setPoints(points - 1);
+      }
+    }
+    rdmFlag();
+  };
 
   return (
     <div className="game">
-      <button onClick={rdmFlag}>Random</button>
-      <FlagCard obj={currentFlag}/>
-      <form onSubmit={handleSubmit}>
-        <input id="guess-input"/>
+      <span className="scoreboard">{points}</span>
+      <FlagCard obj={currentFlag} />
+      <form onSubmit={checkAnswer}>
+        <input id="guess-input" name="guess-input" />
         <button type="submit">Adivinar</button>
       </form>
     </div>
