@@ -9,6 +9,13 @@ export default function Game() {
   const [currentFlag, setCurrentFlag] = useState({});
   const [points, setPoints] = useState(0)
   const [counter, setCounter] = useState(15);
+  const [gameStarted, setGameStarted] = useState(false);
+
+  const saveUser = (e) => {
+    const inputValue = e.target.elements['user-input'];
+    localStorage.setItem(localStorage.length+1, inputValue.value);
+    setGameStarted(true);
+  }
 
   //Gets random flag from flags array
   const rdmFlag = () => {
@@ -19,14 +26,16 @@ export default function Game() {
     }
   }
 
-  // Timer
+  //Timer
   useEffect(() => {
-    const timer = counter > 0 && setInterval(() => setCounter(counter - 1), 1000);
-    if (counter === 0){
-      rdmFlag();
+    if (gameStarted){
+      const timer = counter > 0 && setInterval(() => setCounter(counter - 1), 1000);
+      if (counter === 0){
+        rdmFlag();
+      }
+      return () => clearInterval(timer);
     }
-    return () => clearInterval(timer);
-  }, [counter]);
+  }, [counter, gameStarted]);
 
   //Loads flags into state array
   useEffect(() => {
@@ -35,9 +44,7 @@ export default function Game() {
 
   //Gets first random flag when the flags state array loads
   useEffect(() => {
-    if (flags.length > 0){
-      rdmFlag();
-    }
+    rdmFlag();
   }, [flags]);
 
   //Checks user input against currentFlag state variable
@@ -57,14 +64,24 @@ export default function Game() {
   };
 
   return (
-    <div className="game">
-      <div className="scoreboard">{points}</div>
-      <div className="timer">Time remaining: {counter}</div>
-      <FlagCard obj={currentFlag} />
-      <form onSubmit={checkAnswer}>
-        <input id="guess-input" name="guess-input" />
-        <button type="submit">Adivinar</button>
-      </form>
-    </div>
+    <>
+      {!gameStarted && (
+        <form onSubmit={saveUser}>
+          <input className="text-input" name="user-input" />
+          <button type="submit">Jugar</button>
+        </form>
+      )}
+      {gameStarted && (
+        <div className="game">
+          <div className="scoreboard">{points}</div>
+          <div className="timer">Time remaining: {counter}</div>
+          <FlagCard obj={currentFlag} />
+          <form onSubmit={checkAnswer}>
+            <input className="text-input" name="guess-input" />
+            <button type="submit">Adivinar</button>
+          </form>
+        </div>
+      )}
+    </>
   );
 }
