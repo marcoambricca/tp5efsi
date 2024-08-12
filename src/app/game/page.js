@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react"
 import fetchFlags from '../api/fetchFlags.js'
 import FlagCard from '../components/flag-card.jsx';
+import Link from "next/link.js";
+import '../styles/game.css';
 
 export default function Game() {
   const [flags, setFlags] = useState([]);
@@ -10,10 +12,11 @@ export default function Game() {
   const [points, setPoints] = useState(0)
   const [counter, setCounter] = useState(15);
   const [gameStarted, setGameStarted] = useState(false);
+  const [user, setUser] = useState(null);
 
   const saveUser = (e) => {
-    const inputValue = e.target.elements['user-input'];
-    localStorage.setItem(localStorage.length+1, inputValue.value);
+    const inputValue = e.target.elements['user-input'].value;
+    setUser(inputValue);
     setGameStarted(true);
   }
 
@@ -63,12 +66,21 @@ export default function Game() {
     rdmFlag();
   };
 
+  const handleEndGame = () => {
+    setGameStarted(false);
+    const id = localStorage.length + 1;
+    const newUser = { [user]: points };
+    localStorage.setItem(id, JSON.stringify(newUser));
+    setPoints(0);
+    setUser(null);
+  }
+
   return (
     <>
       {!gameStarted && (
         <form onSubmit={saveUser}>
           <input className="text-input" name="user-input" />
-          <button type="submit">Jugar</button>
+          <button type="submit">Play</button>
         </form>
       )}
       {gameStarted && (
@@ -78,8 +90,11 @@ export default function Game() {
           <FlagCard obj={currentFlag} />
           <form onSubmit={checkAnswer}>
             <input className="text-input" name="guess-input" />
-            <button type="submit">Adivinar</button>
+            <button type="submit">Guess</button>
           </form>
+          <Link href="/">
+            <button onClick={handleEndGame}>End game</button>
+          </Link>
         </div>
       )}
     </>
